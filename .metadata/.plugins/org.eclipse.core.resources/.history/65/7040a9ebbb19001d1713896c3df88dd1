@@ -1,0 +1,83 @@
+package co.grandcircus.cartapi;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class HomeController {
+	@Autowired
+	private CartItemsRepository cartRepo;
+	
+	@GetMapping("/reset")
+	public String reset() {
+		cartRepo.deleteAll();
+		CartItems cart = new CartItems("Ramen", .30, 10);
+		cartRepo.insert(cart);
+		cart = new CartItems("Cashews", 4.99, 2);
+		cartRepo.insert(cart);
+		cart = new CartItems("Spinach", 1.90, 4);
+		cartRepo.insert(cart);
+		cart = new CartItems("Sushi", 8.99, 1);
+		cartRepo.insert(cart);
+		return "Data reset";
+	}
+	
+	@GetMapping("/cart-items")
+	public List<CartItems> readAll(@RequestParam(required=false) String product, 
+			@RequestParam(required=false) Double maxPrice, @RequestParam(required=false) String prefix, 
+			@RequestParam(required=false) Integer pageSize) {
+		if (product != null) {
+			return cartRepo.findByProduct(product);
+		} else if (maxPrice != null) {
+			return cartRepo.findByPriceLessThanEqual(maxPrice);
+		} else if (prefix != null) {
+			return cartRepo.findByNameStartingWith(prefix);
+		} else if (pageSize != null) {
+			return cartRepo.findAll();
+		} else {
+			return cartRepo.findAll();
+		}
+	}
+	@GetMapping("/cart-items/{id}")
+	@ResponseStatus(HttpStatus.)
+	public List<CartItems> getCartItemsById() {
+		
+	}
+	@PostMapping("/cart-items")
+	@ResponseStatus(HttpStatus.)
+	public String addToCartItems() {
+		
+	}
+	@PutMapping("/cart-items/{id}")
+	@ResponseStatus(HttpStatus.)
+	public String editCartItem() {
+		
+	}
+	@DeleteMapping("/cart-items{id}")
+	@ResponseStatus(HttpStatus.)
+	public String deleteCartItem() {
+		
+	}
+	@GetMapping("/cart-items/total-cost")
+	@ResponseStatus(HttpStatus.)
+	public String getTotalCost() {
+		
+	}
+	@PatchMapping("/cart-items/{id}/add")
+	@ResponseStatus(HttpStatus.)
+	public String changeItemQuantity() {
+		
+	}
+}

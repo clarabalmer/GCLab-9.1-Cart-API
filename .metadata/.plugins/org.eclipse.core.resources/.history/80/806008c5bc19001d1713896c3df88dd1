@@ -1,0 +1,14 @@
+package co.grandcircus.cartapi;
+
+import java.util.List;
+
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+public interface CartItemsRepository extends MongoRepository<CartItems, String>{
+	List<CartItems> findAll();
+	List<CartItems> findByProduct(String product);
+	List<CartItems> findByPriceLessThanEqual(Double price);
+	List<CartItems> findByNameStartingWith(String prefix);
+	
+}

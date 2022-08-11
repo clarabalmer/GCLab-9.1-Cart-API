@@ -1,0 +1,30 @@
+package co.grandcircus.cartapi;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class HomeController {
+	@Autowired
+	private CartItemsRepository cartRepo;
+	
+	@GetMapping("/reset")
+	public String reset() {
+		cartRepo.deleteAll();
+		CartItems cart = new CartItems("Ramen", .30, 10);
+		cartRepo.insert(cart);
+		cart = new CartItems("Cashews", 4.99, 2);
+		cartRepo.insert(cart);
+		cart = new CartItems("Spinach", 1.90, 4);
+		cartRepo.insert(cart);
+		cart = new CartItems("Sushi", 8.99, 1);
+		cartRepo.insert(cart);
+		return "Data reset";
+	}
+	
+//	@GetMapping("/cart-items")
+//	public String cartItems() {
+//		
+//	}
+}
