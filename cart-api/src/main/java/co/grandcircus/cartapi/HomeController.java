@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -48,54 +49,46 @@ public class HomeController {
 			return cartRepo.findByProductStartingWith(prefix);
 		} else if (pageSize != null) {
 			List<CartItems> cartItems = cartRepo.findAll();
-			if (cartItems.size() > pageSize) {
-				for (int i = pageSize; i < cartItems.size(); i++) {
-					cartItems.remove(i);
-				}
-			}
+			cartItems = cartItems.subList(0, pageSize);
 			return cartItems;
 		} else {
 			return cartRepo.findAll();
 		}
 	}
 	@GetMapping("/cart-items/{id}")
-	public CartItems getCartItemsById(@RequestParam String id) {
-		return cartRepo.findById(id).orElseThrow(() -> new CartItemsNotFoundException(id));
+	public CartItems getCartItemsById(@PathVariable("id") String id) {
+		return cartRepo.findById(id).orElseThrow(() -> new CartItemsNotFoundException("ID not found"));
 	}
-	@PostMapping("/cart-items")
 	@ResponseStatus(HttpStatus.CREATED)
+	@PostMapping("/cart-items")
 	public CartItems create(@RequestBody CartItems cartItems) {
 		cartRepo.insert(cartItems);
 		return cartItems;
 	}
-//	@PutMapping("/cart-items/{id}")
-//	public CartItems editCartItem(@PathVariable("id") String id, @RequestBody CartItems cartItems) {
-//		cartRepo.save(cartItems);
-//		return cartItems;
-//	}
-	@DeleteMapping("/cart-items{id}")
+	@PutMapping("/cart-items/{id}")
+	public CartItems editCartItem(@PathVariable("id") String id, @RequestBody CartItems cartItems) {
+		cartRepo.save(cartItems);
+		return cartItems;
+	}
 	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@DeleteMapping("/cart-items/{id}")
 	public void deleteCartItem(@PathVariable("id") String id) {
 		cartRepo.deleteById(id);
 	}
 	@GetMapping("/cart-items/total-cost")
-	public Double getTotalCost() {
+	public double getTotalCost() {
 		List<CartItems> cartList = cartRepo.findAll();
-		Double subtotal = 0.0;
+		double subtotal = 0.0;
 		for (int i = 0; i < cartList.size(); i++) {
 			subtotal += (cartList.get(i).getPrice() * cartList.get(i).getQuantity());
 		}
 		return (subtotal * 1.06);
 	}
 	@PatchMapping("/cart-items/{id}/add")
-	public CartItems changeItemQuantity(@PathVariable("id") String id, @RequestParam Integer count) {
-		Optional<CartItems> optCart = cartRepo.findById(id);
-		if (optCart != null) {
-			CartItems cartItemsToEdit = optCart.get();
-			cartItemsToEdit.setQuantity(cartItemsToEdit.getQuantity() + count);
-			return cartItemsToEdit;
-		}
-		return null;
+	public CartItems changeItemQuantity(@PathVariable("id") String id, @RequestParam int count) {
+		CartItems cartItems = cartRepo.findById(id).orElseThrow(() -> new CartItemsNotFoundException("ID not found"));
+		cartItems.setQuantity(cartItems.getQuantity() + count);
+		return cartItems;
 	}
 	@ResponseBody
 	@ExceptionHandler(CartItemsNotFoundException.class)
